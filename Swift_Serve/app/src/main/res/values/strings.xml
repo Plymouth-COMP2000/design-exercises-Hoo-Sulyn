@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Swift_Serve</string>
+    <string name="title_activity_reservation_cancellation_popup">Reservation_Cancellation_Popup
+    </string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Notifications</string>
+</resources>
