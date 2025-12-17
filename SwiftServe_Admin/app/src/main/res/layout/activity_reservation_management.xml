@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    tools:context=".Reservation_Management">
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="CDF4F4" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@id/footerLayout">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+                <!--HEADER-->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="65dp"
+                    android:background="@drawable/gradient_bg"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="10dp"
+                    android:paddingVertical="10dp">
+
+                    <LinearLayout
+                        android:layout_width="300dp"
+                        android:layout_height="match_parent">
+                        <!-- MENU BUTTON -->
+                        <ImageView
+                            android:id="@+id/side_nav_button"
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            android:layout_gravity="center"
+                            android:layout_marginStart="10dp"
+                            android:layout_marginEnd="230dp"
+                            app:srcCompat="@drawable/menu" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="right"
+                        android:paddingRight="10dp">
+                        <!-- PROFILE ICON -->
+                        <FrameLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_vertical"
+                            android:background="@drawable/rounded_frame"
+                            android:id="@+id/profile_nav"
+                            android:padding="5dp">
+
+                            <ImageView
+                                android:layout_width="30dp"
+                                android:layout_height="30dp"
+                                android:layout_gravity="center"
+                                app:srcCompat="@drawable/user__1_" />
+                        </FrameLayout>
+                    </LinearLayout>
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="30dp">
+
+                    <Spinner
+                        android:id="@+id/filter_spinner"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_marginEnd="12dp"
+                        android:layout_gravity="center_vertical"
+                        android:background="@drawable/filter" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/search_layout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="30dp"
+                        app:boxBackgroundColor="@android:color/white"
+                        app:boxStrokeWidth="1dp"
+                        app:boxStrokeColor="#71C9CE"
+                        app:hintEnabled="false">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/search_bar"
+                            android:layout_width="match_parent"
+                            android:layout_height="50dp"
+                            android:hint="Search"
+                            android:imeOptions="actionSearch"
+                            android:inputType="text" />
+                    </com.google.android.material.textfield.TextInputLayout>
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingHorizontal="10dp"
+                    android:id="@+id/reservation_cards_container">
+
+                </LinearLayout>
+            </LinearLayout>
+        </ScrollView>
+        <!--    FOOTER-->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/footerLayout"
+            android:orientation="horizontal"
+            android:background="#A6E3E9"
+            android:gravity="center"
+            android:layout_alignParentBottom="true"
+            android:paddingVertical="15dp">
+
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:alpha="0.5"
+                android:id="@+id/footer_dashboard">
+                <!--                DASHBOARD-->
+                <include
+                    android:layout_width="130dp"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/dashboard_nav_button"
+                    layout="@layout/dashboard_bottom_nav"/>
+            </FrameLayout>
+
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:alpha="0.5"
+                android:id="@+id/footer_menu">
+                <!--                MENU MANAGEMENT-->
+                <include
+                    android:layout_width="130dp"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/menu_nav_button"
+                    layout="@layout/menu_bottom_nav" />
+            </FrameLayout>
+
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/footer_reservation">
+                <!--                RESERVATION MANAGEMENT-->
+                <include
+                    android:layout_width="130dp"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/reservation_nav_button"
+                    layout="@layout/reservation_bottom_nav"/>
+            </FrameLayout>
+        </LinearLayout>
+    </RelativeLayout>
+    <!-- NAVIGATION DRAWER -->
+    <include
+        android:id="@+id/reservation_management_nav"
+        layout="@layout/activity_reservation_side_nav"
+        android:layout_width="250dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="start" />
+</androidx.drawerlayout.widget.DrawerLayout>

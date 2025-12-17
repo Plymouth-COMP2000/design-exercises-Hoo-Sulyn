@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name">SwiftServe_Admin</string>
+    <string name="title_activity_reservation_cancellation_popup">Reservation_Cancellation_Popup</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Notifications</string>
+
+    <string name="status_dropdown">Status Menu Dropdown</string>
+    <string-array name="status">
+        <item>Available</item>
+        <item>Sold Out</item>
+        <item>Unavailable</item>
+    </string-array>
+
+    <string-array name="reservation_filters">
+        <item>All</item>
+        <item>Pending</item>
+        <item>Accepted</item>
+        <item>Declined</item>
+    </string-array>
+</resources>
