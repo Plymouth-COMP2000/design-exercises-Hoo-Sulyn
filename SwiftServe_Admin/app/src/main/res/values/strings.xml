@@ -17,5 +17,6 @@
         <item>Pending</item>
         <item>Accepted</item>
         <item>Declined</item>
+        <item>Attended</item>
     </string-array>
 </resources>

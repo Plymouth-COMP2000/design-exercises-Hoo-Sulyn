@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- THIS IS THE POPUP/BOTTOM SHEET CONTENT -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/top_border_radius"
+        android:orientation="vertical"
+        android:layout_alignParentBottom="true">
+
+        <!-- Drag handle (the grey bar) -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/drag_handle"
+            android:layout_width="130dp"
+            android:layout_height="15dp"
+            android:layout_gravity="center"
+            android:backgroundTint="#d9d9d9"
+            android:layout_marginVertical="20dp"/>
+
+        <!-- Food image -->
+        <ImageView
+            android:id="@+id/popup_item_image"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:background="#f5f5f5"
+            android:layout_marginBottom="30dp"/>
+
+        <!-- Text content area -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:paddingHorizontal="40dp">
+
+            <!-- Food name -->
+            <TextView
+                android:id="@+id/popup_item_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                android:textSize="24sp"
+                android:paddingVertical="15dp"/>
+
+            <!-- Price -->
+            <TextView
+                android:id="@+id/popup_item_price"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                android:textSize="15sp"
+                android:textColor="#757575"
+                android:paddingVertical="10dp"/>
+
+            <!-- Description -->
+            <TextView
+                android:id="@+id/popup_item_description"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="14sp"
+                android:paddingVertical="10dp"
+                android:justificationMode="inter_word"/>
+
+            <!-- Allergen section -->
+            <TextView
+                android:id="@+id/allergen_label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="#FF0000"
+                android:textStyle="bold"
+                android:layout_marginTop="10dp"
+                android:paddingVertical="10dp"
+                android:text="Allergen Info:"/>
+
+            <TextView
+                android:id="@+id/popup_allergen_info"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="30dp"
+                android:justificationMode="inter_character"/>
+        </LinearLayout>
+    </LinearLayout>
+</RelativeLayout>

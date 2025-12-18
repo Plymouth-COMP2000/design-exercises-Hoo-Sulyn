@@ -48,6 +48,7 @@
                     android:singleLine="false"
                     android:gravity="top|start"
                     android:minLines="5"
+                    android:id="@+id/reasons"
                     android:hint="Let guest know why their reservation was declined..."/>
             </com.google.android.material.textfield.TextInputLayout>
             <LinearLayout
@@ -66,7 +67,7 @@
                     android:paddingHorizontal="30dp"
                     android:paddingVertical="15dp"
                     app:cornerRadius="8dp"
-                    android:id="@+id/confirm_button"
+                    android:id="@+id/btn_confirm"
                     android:text="Confirm"/>
                 <com.google.android.material.button.MaterialButton
                     android:layout_width="wrap_content"
@@ -80,7 +81,7 @@
                     app:strokeColor="#a4a4a4"
                     app:strokeWidth="1dp"
                     app:cornerRadius="8dp"
-                    android:id="@+id/cancel_button"
+                    android:id="@+id/btn_cancel"
                     android:text="Cancel"/>
             </LinearLayout>
         </LinearLayout>

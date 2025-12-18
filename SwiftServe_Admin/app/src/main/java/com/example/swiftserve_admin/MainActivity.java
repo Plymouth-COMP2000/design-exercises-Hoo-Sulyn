@@ -16,7 +16,7 @@ import org.json.JSONObject;
 
 public class MainActivity extends AppCompatActivity {
 
-    private MaterialButton loginButton;
+    private MaterialButton loginButton, registerOption;
     private TextInputEditText loginEmail, loginPassword;
 
     @Override
@@ -24,9 +24,10 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        loginButton = findViewById(R.id.loginButton);
         loginEmail = findViewById(R.id.loginEmail);
         loginPassword = findViewById(R.id.loginPassword);
+        loginButton = findViewById(R.id.loginButton);
+        registerOption = findViewById(R.id.registerOption);
 
         loginButton.setOnClickListener(v -> {
             String email = loginEmail.getText().toString().trim();
@@ -45,41 +46,60 @@ public class MainActivity extends AppCompatActivity {
                     response -> {
                         try {
                             JSONArray users = response.getJSONArray("users");
-                            boolean found = false;
+                            boolean emailFound = false;
+                            boolean passwordCorrect = false;
+                            JSONObject matchedUser = null;
 
                             for (int i = 0; i < users.length(); i++) {
                                 JSONObject user = users.getJSONObject(i);
-
-                                if (email.equals(user.getString("email")) &&
-                                        password.equals(user.getString("password"))) {
-
-                                    String userType = user.getString("usertype");
-                                    if (!userType.equalsIgnoreCase("admin")) {
-                                        Toast.makeText(this, "Admin access only", Toast.LENGTH_SHORT).show();
-                                        return;
+                                if (email.equalsIgnoreCase(user.getString("email"))) {
+                                    emailFound = true;
+                                    if (password.equals(user.getString("password"))) {
+                                        passwordCorrect = true;
+                                        matchedUser = user;
                                     }
-
-                                    // SAVE ALL DATA FOR EDIT PROFILE
-                                    SharedPreferences.Editor editor = getSharedPreferences("UserPrefs", MODE_PRIVATE).edit();
-                                    editor.putBoolean("is_logged_in", true);
-                                    editor.putString("user_type", userType);
-                                    editor.putString("user_name", user.getString("username"));
-                                    editor.putString("user_email", email);
-                                    editor.putString("logged_in_student_id", "bsse2509244");
-                                    editor.putString("logged_in_user_id", user.getString("username")); // USE _id
-                                    editor.apply();
-
-                                    found = true;
-                                    Toast.makeText(this, "Login successful", Toast.LENGTH_SHORT).show();
-                                    startActivity(new Intent(this, Dashboard.class));
-                                    finish();
                                     break;
                                 }
                             }
 
-                            if (!found) {
-                                Toast.makeText(this, "Wrong email or password", Toast.LENGTH_SHORT).show();
+                            if (!emailFound) {
+                                Toast.makeText(this, "Email not registered. Please register.", Toast.LENGTH_LONG).show();
+                                startActivity(new Intent(this, Register_Page.class));
+                                return;
                             }
+
+                            if (!passwordCorrect) {
+                                Toast.makeText(this, "Incorrect email or password", Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+
+                            // --- MODIFIED LOGIC START ---
+                            String userType = matchedUser.getString("usertype");
+
+                            // Save Session Data
+                            SharedPreferences.Editor editor = getSharedPreferences("UserPrefs", MODE_PRIVATE).edit();
+                            editor.putBoolean("is_logged_in", true);
+                            editor.putString("user_type", userType);
+                            editor.putString("user_name", matchedUser.getString("username"));
+                            editor.putString("user_email", email);
+                            editor.putString("logged_in_student_id", "bsse2509244");
+
+                            // Using customer ID or username as ID
+                            editor.putString("logged_in_user_id", matchedUser.optString("id", matchedUser.getString("username")));
+                            editor.apply();
+
+                            // Redirect based on userType
+                            if (userType.equalsIgnoreCase("admin")) {
+                                Toast.makeText(this, "Admin Login Successful", Toast.LENGTH_SHORT).show();
+                                // Redirect Admin to Dashboard
+                                startActivity(new Intent(MainActivity.this, Dashboard.class));
+                            } else {
+                                Toast.makeText(this, "Guest Login Successful", Toast.LENGTH_SHORT).show();
+                                // Redirect Guest to Menu Page
+                                startActivity(new Intent(MainActivity.this, Guest_Menu_Page.class));
+                            }
+                            finish();
+                            // --- MODIFIED LOGIC END ---
 
                         } catch (Exception e) {
                             Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -87,8 +107,9 @@ public class MainActivity extends AppCompatActivity {
                     },
                     error -> Toast.makeText(this, "Network error", Toast.LENGTH_SHORT).show()
             );
-
             queue.add(request);
         });
+
+        registerOption.setOnClickListener(v -> startActivity(new Intent(this, Register_Page.class)));
     }
 }

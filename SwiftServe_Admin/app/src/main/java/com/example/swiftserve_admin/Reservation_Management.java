@@ -3,6 +3,7 @@ package com.example.swiftserve_admin;
 import android.app.Dialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -21,6 +22,7 @@ import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatSpinner;
 import androidx.core.graphics.Insets;
 import androidx.core.view.GravityCompat;
 import androidx.core.view.ViewCompat;
@@ -42,6 +44,19 @@ public class Reservation_Management extends PollingBaseActivity {
     private TextInputEditText searchEdit;
     private List<Reservation> allReservations = new ArrayList<>();
     private Spinner filterSpinner;
+
+    // The list for the Spinner
+    String[] tableNames = {
+            "Table 1 (2 pax)", "Table 2 (2 pax)", "Table 3 (4 pax)",
+            "Table 4 (4 pax)", "Table 5 (4 pax)", "Table 6 (6 pax)",
+            "Table 7 (6 pax)", "Table 8 (8 pax)", "Table 9 (8 pax)", "Table 10 (10 pax)"
+    };
+
+    // The matching capacities
+    int[] tableCapacities = {2, 2, 4, 4, 4, 6, 6, 8, 8, 10};
+
+    // Variable to track the total capacity being built for the current popup
+    private int currentTotalCapacity = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -168,7 +183,7 @@ public class Reservation_Management extends PollingBaseActivity {
     }
 
     private void updateReservationCards(List<Reservation> list) {
-        cardsContainer.removeAllViews();          // start fresh
+        cardsContainer.removeAllViews();
 
         if (list.isEmpty()) {
             TextView tv = new TextView(this);
@@ -183,30 +198,85 @@ public class Reservation_Management extends PollingBaseActivity {
         for (final Reservation r : list) {
             View card = getLayoutInflater().inflate(R.layout.reservation_card_template, cardsContainer, false);
 
-            // --- populate ---
+            // --- Standard Data Binding ---
+            ((TextView) card.findViewById(R.id.reservation_id)).setText("RSV-" + r.getId());
             ((TextView) card.findViewById(R.id.card_guest_name)).setText(r.getGuestName());
+            ((TextView) card.findViewById(R.id.card_guest_email)).setText(r.getEmail());
             ((TextView) card.findViewById(R.id.card_date)).setText(r.getDate());
             ((TextView) card.findViewById(R.id.card_time)).setText(r.getTime());
             ((TextView) card.findViewById(R.id.card_guests)).setText(String.valueOf(r.getGuests()));
 
+            TextView detailsTv = card.findViewById(R.id.add_details);
+            detailsTv.setText(r.getDetails());
+
+            TextView tableNoTv = card.findViewById(R.id.table_number);
+            tableNoTv.setText(r.getTableNum() != null ? r.getTableNum() : "-");
+
             TextView statusTv = card.findViewById(R.id.card_status);
             statusTv.setText(r.getStatus());
 
-            // colour by status
-            int colour;
-            switch (r.getStatus()) {
-                case "Accepted": colour = android.R.color.holo_green_dark; break;
-                case "Declined": colour = android.R.color.holo_red_dark;   break;
-                default:         colour = android.R.color.holo_orange_dark;
+            // --- Find Dynamic View Elements ---
+            LinearLayout pendingButtons = card.findViewById(R.id.pending_buttons_layout);
+            MaterialButton vacantBtn = card.findViewById(R.id.card_vacant_btn);
+            MaterialButton declinedLabel = card.findViewById(R.id.card_declined_status_label);
+            LinearLayout reasonLayout = card.findViewById(R.id.reason_layout);
+            TextView reasonTv = card.findViewById(R.id.card_reason);
+
+            // --- Status Logic ---
+            if ("Pending".equalsIgnoreCase(r.getStatus())) {
+                statusTv.setTextColor(getResources().getColor(android.R.color.holo_orange_dark));
+
+                pendingButtons.setVisibility(View.VISIBLE);
+                vacantBtn.setVisibility(View.GONE);
+                declinedLabel.setVisibility(View.GONE);
+                reasonLayout.setVisibility(View.GONE);
+
+                card.findViewById(R.id.card_accept_btn).setOnClickListener(v -> showAcceptPopup(r));
+                card.findViewById(R.id.card_decline_btn).setOnClickListener(v -> showDeclinePopup(r));
+
+            } else if ("Accepted".equalsIgnoreCase(r.getStatus())) {
+                statusTv.setTextColor(Color.parseColor("#2EC23D")); // Bold Green text
+                pendingButtons.setVisibility(View.GONE);
+                vacantBtn.setVisibility(View.VISIBLE);
+                vacantBtn.setEnabled(true);
+                vacantBtn.setText("Set Vacant"); // Reset color to your default green
+
+                vacantBtn.setBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#2EC23D")));
+                vacantBtn.setTextColor(Color.WHITE);
+
+                vacantBtn.setOnClickListener(v -> showVacancyPopup(r));
+
+            } else if ("Attended".equalsIgnoreCase(r.getStatus())) {
+                statusTv.setTextColor(Color.GRAY);
+                statusTv.setText("Attended");
+
+                pendingButtons.setVisibility(View.GONE);
+                vacantBtn.setVisibility(View.VISIBLE);
+
+                // BUTTON: "Reservation Attended" locked in Light Grey
+                vacantBtn.setText("Reservation Attended");
+                vacantBtn.setEnabled(false);
+                vacantBtn.setBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.LTGRAY));
+                vacantBtn.setTextColor(Color.DKGRAY);
+
+                declinedLabel.setVisibility(View.GONE);
+                reasonLayout.setVisibility(View.GONE);
+
+            } else if ("Declined". equalsIgnoreCase(r.getStatus())){
+                statusTv.setTextColor(getResources().getColor(android.R.color.holo_red_dark));
+
+                pendingButtons.setVisibility(View.GONE);
+                vacantBtn.setVisibility(View.GONE);
+
+                // Show the "Declined" label/button as unclickable
+                declinedLabel.setVisibility(View.VISIBLE);
+                declinedLabel.setText("Reservation Declined");
+                declinedLabel.setEnabled(false);
+                declinedLabel.setBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.LTGRAY));
+
+                reasonLayout.setVisibility(View.VISIBLE);
+                reasonTv.setText(r.getReason() != null ? r.getReason() : "No reason provided");
             }
-            statusTv.setTextColor(getResources().getColor(colour));
-
-            // --- buttons ---
-            MaterialButton acceptBtn = card.findViewById(R.id.card_accept_btn);
-            MaterialButton declineBtn = card.findViewById(R.id.card_decline_btn);
-
-            acceptBtn.setOnClickListener(v -> changeStatus(r.getId(), "Accepted"));
-            declineBtn.setOnClickListener(v -> changeStatus(r.getId(), "Declined"));
 
             cardsContainer.addView(card);
         }
@@ -229,10 +299,11 @@ public class Reservation_Management extends PollingBaseActivity {
             public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
                 String choice = parent.getItemAtPosition(pos).toString();
                 switch (choice) {
-                    case "All":       showByStatus(null);           break;
-                    case "Pending":   showByStatus("Pending");      break;
-                    case "Accepted":  showByStatus("Accepted");     break;
-                    case "Declined":  showByStatus("Declined");     break;
+                    case "All": showByStatus(null); break;
+                    case "Pending": showByStatus("Pending"); break;
+                    case "Accepted": showByStatus("Accepted"); break;
+                    case "Declined": showByStatus("Declined"); break;
+                    case "Attended": showByStatus("Attended"); break;
                 }
             }
             @Override public void onNothingSelected(AdapterView<?> parent) {}
@@ -285,5 +356,208 @@ public class Reservation_Management extends PollingBaseActivity {
         cancelBtn.setOnClickListener(view -> dialog.dismiss());
 
         dialog.show();
+    }
+
+    private void showAcceptPopup(Reservation res) {
+        View dialogView = getLayoutInflater().inflate(R.layout.activity_accept_reservation_popup, null);
+        Dialog dialog = new Dialog(this);
+        dialog.setContentView(dialogView);
+        dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+
+        LinearLayout spinnerContainer = dialogView.findViewById(R.id.spinner_container);
+        TextView tvTotalGuests = dialogView.findViewById(R.id.total_guests);
+        TextView tvEnough = dialogView.findViewById(R.id.enough_guest);
+        AppCompatSpinner firstSpinner = dialogView.findViewById(R.id.table_dropdown);
+        MaterialButton btnAddTable = dialogView.findViewById(R.id.btn_add_table);
+        MaterialButton btnConfirm = dialogView.findViewById(R.id.btn_confirm);
+        MaterialButton btnCancel = dialogView.findViewById(R.id.btn_cancel);
+
+        int guestsNeeded = res.getGuests();
+        List<AppCompatSpinner> activeSpinners = new ArrayList<>();
+
+        // --- 1. FILTER BUSY TABLES ---
+        List<String> busyTables = dbHelper.getOccupiedTables();
+        List<TableItem> availableItems = new ArrayList<>();
+
+        for (int i = 0; i < tableNames.length; i++) {
+            // Only add to the list if the table is NOT currently 'Accepted'
+            if (!busyTables.contains(tableNames[i])) {
+                availableItems.add(new TableItem(tableNames[i], tableCapacities[i], guestsNeeded));
+            }
+        }
+
+        if (availableItems.isEmpty()) {
+            Toast.makeText(this, "Fully Booked! No tables available.", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        // --- 2. SORT AND PREPARE DATA ---
+        java.util.Collections.sort(availableItems, (a, b) -> Integer.compare(a.score, b.score));
+
+        List<String> displayNames = new ArrayList<>();
+        List<Integer> displayCaps = new ArrayList<>();
+        for (TableItem item : availableItems) {
+            displayNames.add(item.name);
+            displayCaps.add(item.capacity);
+        }
+
+        // --- 3. SETUP FIRST SPINNER ---
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, displayNames);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        firstSpinner.setAdapter(adapter);
+        activeSpinners.add(firstSpinner);
+
+        updateCapacityCheck(activeSpinners, displayCaps, guestsNeeded, tvTotalGuests, tvEnough);
+
+        firstSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> p, View v, int pos, long id) {
+                updateCapacityCheck(activeSpinners, displayCaps, guestsNeeded, tvTotalGuests, tvEnough);
+            }
+            @Override public void onNothingSelected(AdapterView<?> p) {}
+        });
+
+        // --- 4. ADD TABLE BUTTON ---
+        btnAddTable.setOnClickListener(v -> {
+            com.google.android.material.card.MaterialCardView card = new com.google.android.material.card.MaterialCardView(this);
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+            params.setMargins(0, 0, 0, 20);
+            card.setLayoutParams(params);
+            card.setRadius(8);
+            card.setCardBackgroundColor(Color.WHITE);
+
+            AppCompatSpinner newSpinner = new AppCompatSpinner(this);
+            newSpinner.setAdapter(adapter);
+            newSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> p, View v, int pos, long id) {
+                    updateCapacityCheck(activeSpinners, displayCaps, guestsNeeded, tvTotalGuests, tvEnough);
+                }
+                @Override public void onNothingSelected(AdapterView<?> p) {}
+            });
+
+            card.addView(newSpinner);
+            spinnerContainer.addView(card);
+            activeSpinners.add(newSpinner);
+            updateCapacityCheck(activeSpinners, displayCaps, guestsNeeded, tvTotalGuests, tvEnough);
+        });
+
+        // --- 5. CONFIRM BUTTON ---
+        btnConfirm.setOnClickListener(v -> {
+            int total = 0;
+            StringBuilder finalTables = new StringBuilder();
+            for (AppCompatSpinner s : activeSpinners) {
+                int pos = s.getSelectedItemPosition();
+                total += displayCaps.get(pos);
+                if (finalTables.length() > 0) finalTables.append(", ");
+                finalTables.append(displayNames.get(pos));
+            }
+
+            if (total >= guestsNeeded) {
+                dbHelper.updateStatusWithTable(res.getId(), "Accepted", finalTables.toString());
+                dialog.dismiss();
+                refreshReservationCards();
+            } else {
+                Toast.makeText(this, "Still not enough seats!", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
+        dialog.show();
+        dialog.getWindow().setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT);
+    }
+
+    private void showVacancyPopup(Reservation res) {
+        View dialogView = getLayoutInflater().inflate(R.layout.activity_table_vacancy_popup, null);
+        Dialog dialog = new Dialog(this);
+        dialog.setContentView(dialogView);
+        dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+
+        TextView messageTv = dialogView.findViewById(R.id.vacancy_confirm_text);
+        if (messageTv != null) {
+            messageTv.setText("Are you sure you want to set " + res.getTableNum() + " as Vacant?");
+        }
+
+        MaterialButton confirmBtn = dialogView.findViewById(R.id.confirm_button);
+        MaterialButton cancelBtn = dialogView.findViewById(R.id.cancel_button);
+
+        confirmBtn.setOnClickListener(v -> {
+            // Change status to "Attended" so the table becomes available again
+            dbHelper.updateStatus(res.getId(), "Attended");
+            refreshReservationCards();
+            dialog.dismiss();
+            Toast.makeText(this, "Table is now vacant", Toast.LENGTH_SHORT).show();
+        });
+
+        cancelBtn.setOnClickListener(v -> dialog.dismiss());
+        dialog.show();
+    }
+
+    // Helper method to update UI
+    private void updateCapacityCheck(List<AppCompatSpinner> spinners, List<Integer> caps, int needed, TextView tvTotal, TextView tvEnough) {
+        int current = 0;
+        for (AppCompatSpinner s : spinners) {
+            current += caps.get(s.getSelectedItemPosition());
+        }
+
+        tvTotal.setText(current + " / " + needed);
+        if (current >= needed) {
+            tvEnough.setText("(enough)");
+            tvEnough.setTextColor(Color.parseColor("#2EC23D"));
+        } else {
+            tvEnough.setText("(not enough)");
+            tvEnough.setTextColor(Color.RED);
+        }
+    }
+
+
+    class TableItem {
+        String name;
+        int capacity;
+        int score;
+
+        TableItem(String name, int capacity, int needed) {
+            this.name = name;
+            this.capacity = capacity;
+
+            if (capacity >= needed) {
+                this.score = capacity - needed;
+            } else {
+                this.score = (needed - capacity) + 100;
+            }
+        }
+    }
+
+    private void showDeclinePopup(Reservation res) {
+        // 1. INFLATE the decline layout
+        View dialogView = getLayoutInflater().inflate(R.layout.activity_decline_reservation_popup, null);
+
+        Dialog dialog = new Dialog(this);
+        dialog.setContentView(dialogView); // Use the inflated view object
+        dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+
+        // 2. FIND VIEWS inside 'dialogView'
+        TextInputEditText etReasons = dialogView.findViewById(R.id.reasons);
+        MaterialButton btnConfirm = dialogView.findViewById(R.id.btn_confirm);
+        MaterialButton btnCancel = dialogView.findViewById(R.id.btn_cancel);
+
+        // 3. SET LISTENERS
+        btnConfirm.setOnClickListener(v -> {
+            String reasonText = etReasons.getText() != null ? etReasons.getText().toString() : "";
+            dbHelper.updateStatusWithReason(res.getId(), "Declined", reasonText);
+            refreshReservationCards();
+            dialog.dismiss();
+            Toast.makeText(this, "Reservation declined.", Toast.LENGTH_SHORT).show();
+        });
+
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
+
+        dialog.show();
+
+        Window window = dialog.getWindow();
+        if (window != null) {
+            window.setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT);
+        }
     }
 }

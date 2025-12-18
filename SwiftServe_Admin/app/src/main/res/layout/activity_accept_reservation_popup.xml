@@ -69,61 +69,75 @@
                 android:layout_height="wrap_content"
                 android:textStyle="bold"
                 android:textSize="16sp"
-                android:layout_marginBottom="15dp"
-                android:text="Set a table number :"/>
-            <com.google.android.material.card.MaterialCardView
+                android:layout_marginBottom="10dp"
+                android:text="Select Table(s):"/>
+
+            <ScrollView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:backgroundTint="@color/white"
-                android:layout_marginBottom="20dp">
-                <androidx.appcompat.widget.AppCompatSpinner
+                android:maxHeight="200dp"
+                android:layout_marginBottom="15dp">
+
+                <LinearLayout
+                    android:id="@+id/spinner_container"
                     android:layout_width="match_parent"
-                    android:layout_height="40dp" />
-            </com.google.android.material.card.MaterialCardView>
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:backgroundTint="@color/white"
+                        android:layout_marginBottom="10dp">
+
+                        <androidx.appcompat.widget.AppCompatSpinner
+                            android:layout_width="match_parent"
+                            android:layout_height="40dp"
+                            android:id="@+id/table_dropdown"/>
+                    </com.google.android.material.card.MaterialCardView>
+
+                </LinearLayout>
+            </ScrollView>
+
             <com.google.android.material.button.MaterialButton
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="50dp"
-                android:textSize="16sp"
+                android:layout_marginBottom="30dp"
+                android:textSize="14sp"
                 android:textStyle="bold"
                 android:textColor="@color/black"
-                android:backgroundTint="#A6E3E9"
+                android:backgroundTint="#D1F2F5"
                 app:cornerRadius="8dp"
-                android:id="@+id/add_table"
-                android:text="Add Table"/>
+                android:id="@+id/btn_add_table"
+                android:text="+ Add Another Table"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:gravity="center">
+                android:weightSum="2"
+                android:layout_marginTop="10dp">
+
                 <com.google.android.material.button.MaterialButton
-                    android:layout_width="wrap_content"
+                    android:id="@+id/btn_confirm"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="10dp"
+                    android:text="Confirm"
                     android:textColor="@color/white"
                     android:backgroundTint="#2EC23D"
-                    android:layout_marginRight="70dp"
-                    android:paddingHorizontal="30dp"
-                    android:paddingVertical="15dp"
-                    app:cornerRadius="8dp"
-                    android:id="@+id/confirm_button"
-                    android:text="Confirm"/>
+                    app:cornerRadius="8dp" />
+
                 <com.google.android.material.button.MaterialButton
-                    android:layout_width="wrap_content"
+                    android:id="@+id/btn_cancel"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:paddingHorizontal="30dp"
-                    android:paddingVertical="15dp"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:textColor="#a4a4a4"
-                    android:backgroundTint="@color/white"
-                    app:strokeColor="#a4a4a4"
-                    app:strokeWidth="1dp"
-                    app:cornerRadius="8dp"
-                    android:id="@+id/cancel_button"
-                    android:text="Cancel"/>
+                    android:layout_weight="1"
+                    android:text="Cancel"
+                    android:textColor="@color/black"
+                    android:backgroundTint="#E0E0E0"
+                    app:cornerRadius="8dp" />
             </LinearLayout>
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>

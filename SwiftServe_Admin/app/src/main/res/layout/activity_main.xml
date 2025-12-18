@@ -15,28 +15,13 @@
         android:contentDescription="Logo"
         app:srcCompat="@drawable/swiftserve_logo_only"
         app:tint="#80000000" />
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_horizontal">
-        <ImageView
-            android:layout_width="210dp"
-            android:layout_height="60dp"
-            android:layout_marginBottom="50dp"
-            android:layout_gravity="center_horizontal"
-            android:contentDescription="SwiftServe"
-            app:srcCompat="@drawable/swiftserve_logo_name" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="60dp"
-            android:text="Admin"
-            android:textSize="42sp"
-            android:textColor="#016384"
-            android:layout_marginLeft="5dp"
-            android:textStyle="italic|bold" />
-    </LinearLayout>
+    <ImageView
+        android:layout_width="210dp"
+        android:layout_height="60dp"
+        android:layout_marginBottom="50dp"
+        android:layout_gravity="center_horizontal"
+        android:contentDescription="SwiftServe"
+        app:srcCompat="@drawable/swiftserve_logo_name" />
 
     <!--    LOGIN CONTAINER-->
     <androidx.cardview.widget.CardView
@@ -50,16 +35,27 @@
             android:orientation="horizontal">
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/adminOption"
+                android:id="@+id/loginOption"
                 android:layout_width="110dp"
                 android:layout_height="60dp"
                 android:layout_weight="1"
                 android:insetTop="0dp"
                 android:insetBottom="0dp"
-                android:text="Admin."
                 android:textColor="@color/black"
                 android:textStyle="bold"
+                android:text="Login"
                 app:backgroundTint="#94CCD2"
+                app:cornerRadius="0dp"
+                />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/registerOption"
+                android:layout_width="110dp"
+                android:layout_height="60dp"
+                android:layout_weight="1"
+                android:text="Register"
+                android:textColor="#aaaa"
+                app:backgroundTint="@color/white"
                 app:cornerRadius="0dp"/>
 
             <!--            LOGIN FORM-->
@@ -83,6 +79,7 @@
                 android:text="Welcome Back!"/>
 
             <!--            LOGIN FORM-->
+
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
@@ -108,7 +105,16 @@
                     android:inputType="textWebPassword"
                     android:id="@+id/loginPassword"/>
             </com.google.android.material.textfield.TextInputLayout>
-
+            <com.google.android.material.button.MaterialButton
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Forgot Password"
+                android:textColor="@color/black"
+                android:textSize="12sp"
+                android:id="@+id/forget_password"
+                android:textAlignment="viewEnd"
+                app:backgroundTint="@color/white"
+                />
             <com.google.android.material.button.MaterialButton
                 android:layout_width="match_parent"
                 android:layout_height="55dp"
