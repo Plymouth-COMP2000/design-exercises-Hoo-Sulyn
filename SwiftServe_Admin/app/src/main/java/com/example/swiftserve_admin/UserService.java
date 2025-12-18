@@ -62,41 +62,75 @@ public class UserService {
         requestQueue.add(jsonObjectRequest);
     }
 
+    public void createUser(String studentId, User user, UserProfileListener listener) {
+        String url = BASE_URL + "/create_user/" + studentId; // URL as per doc
+
+        JSONObject postData = new JSONObject();
+        try {
+            postData.put("username", user.getUsername());
+            postData.put("password", user.getPassword());
+            postData.put("firstname", user.getFirstname());
+            postData.put("lastname", user.getLastname());
+            postData.put("email", user.getEmail());
+            postData.put("contact", user.getContact());
+            postData.put("usertype", user.getUsertype()); // Usually "guest"
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, url, postData,
+                response -> listener.onSuccess(user),
+                error -> listener.onError("Registration Error: " + error.getMessage())
+        );
+
+        requestQueue.add(request);
+    }
+
     // ==========================================================
     // 2. UPDATE PROFILE (PUT) - Endpoint assumed to be /update_user
     // ==========================================================
-    public void updateUserProfile(String studentId, String userId, final User user, final UserProfileListener listener) {
+    public void updateUserProfile(String studentId, String userId, User user, UserProfileListener listener) {
+        // 1. Ensure the URL matches the documentation
         String url = BASE_URL + "/update_user/" + studentId + "/" + userId;
 
-        JSONObject jsonBody = new JSONObject();
+        JSONObject postData = new JSONObject();
         try {
-            jsonBody.put("username", user.getUsername());
-            jsonBody.put("password", user.getPassword());
-            jsonBody.put("firstname", user.getFirstname());
-            jsonBody.put("lastname", user.getLastname());
-            jsonBody.put("email", user.getEmail());
-            jsonBody.put("contact", user.getContact());
-            jsonBody.put("usertype", user.getUsertype());
+            // 2. The documentation requires ALL these fields for a successful update [cite: 117-124]
+            postData.put("username", user.getUsername());
+            postData.put("password", user.getPassword());
+            postData.put("firstname", user.getFirstname());
+            postData.put("lastname", user.getLastname());
+            postData.put("email", user.getEmail());
+            postData.put("contact", user.getContact());
+            postData.put("usertype", user.getUsertype());
         } catch (JSONException e) {
-            listener.onError("Error creating request body: " + e.getMessage());
-            return;
+            e.printStackTrace();
         }
 
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
-                Request.Method.PUT,
-                url,
-                jsonBody,
-                response -> listener.onSuccess(user),
-                error -> listener.onError("Network error updating profile: " + (error.getMessage() != null ? error.getMessage() : "Unknown Error"))
-        ) {
-            @Override
-            public Map<String, String> getHeaders() {
-                Map<String, String> headers = new HashMap<>();
-                headers.put("Content-Type", "application/json");
-                return headers;
-            }
-        };
+        // 3. Method MUST be PUT as per documentation
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.PUT, url, postData,
+                response -> {
+                    // Documentation returns "User updated successfully" [cite: 141]
+                    listener.onSuccess(user);
+                },
+                error -> listener.onError("Update failed: " + error.getMessage())
+        );
 
-        requestQueue.add(jsonObjectRequest);
+        requestQueue.add(request);
+    }
+
+    public void deleteUser(String studentId, String userId, final UserProfileListener listener) {
+        // URL: http://10.240.72.69/comp2000/coursework/delete_user/bsse2509244/username
+        String url = BASE_URL + "/delete_user/" + studentId + "/" + userId;
+
+        JsonObjectRequest request = new JsonObjectRequest(
+                Request.Method.DELETE,
+                url,
+                null,
+                response -> listener.onSuccess(null),
+                error -> listener.onError(error.getMessage() != null ? error.getMessage() : "Unknown Error")
+        );
+
+        requestQueue.add(request);
     }
 }

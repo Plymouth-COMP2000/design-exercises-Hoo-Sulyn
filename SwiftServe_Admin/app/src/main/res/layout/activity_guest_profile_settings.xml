@@ -27,7 +27,7 @@
                     android:paddingHorizontal="10dp">
 
                     <ImageView
-                        android:id="@+id/imageView"
+                        android:id="@+id/side_nav_button"
                         android:layout_width="30dp"
                         android:layout_height="30dp"
                         android:layout_marginStart="10dp"
@@ -179,12 +179,29 @@
                         android:background="#c4c4c4"
                         android:layout_marginBottom="10dp"/>
                 </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="260dp"
+                    android:layout_marginVertical="20dp"
+                    android:paddingHorizontal="10dp"
+                    android:gravity="bottom">
+                    <com.google.android.material.button.MaterialButton
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:backgroundTint="#ff0000"
+                        android:paddingVertical="15dp"
+                        android:text="Delete Account"
+                        android:id="@+id/delete_account"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
             </LinearLayout>
         </ScrollView>
     </RelativeLayout>
     <!-- NAVIGATION DRAWER -->
     <include
-        android:id="@+id/profile_settings_nav"
+        android:id="@+id/guest_profile_settings_nav"
         layout="@layout/guest_profile_side_nav"
         android:layout_width="250dp"
         android:layout_height="match_parent"

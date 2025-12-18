@@ -15,6 +15,7 @@
 
     <application
         android:allowBackup="true"
+        android:usesCleartextTraffic="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher_foreground"
@@ -23,6 +24,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.SwiftServe_Admin">
+        <activity
+            android:name=".Forget_Password"
+            android:exported="false" />
         <activity
             android:name=".Guest_Reservation_Summary"
             android:exported="false" />

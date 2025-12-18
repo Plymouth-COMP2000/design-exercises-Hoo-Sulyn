@@ -1,13 +1,17 @@
 package com.example.swiftserve_admin;
 
 import android.app.DatePickerDialog;
+import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -15,23 +19,19 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
-
-import org.json.JSONObject;
 
 import java.util.Calendar;
 import java.util.Locale;
 
-public class Guest_Reservation_Page extends AppCompatActivity {
+public class Guest_Reservation_Page extends GuestPollingBaseActivity {
 
     private DrawerLayout drawerLayout;
-    private ImageView menuButton, closeButton;
+    private ImageView menuButton;
     private FrameLayout profileHeader;
+    private UserService userService;
+    private String studentId = "bsse2509244";
 
     // Input Fields
     private TextInputEditText dateEdit, timeEdit, guestsEdit, firstNameEdit, lastNameEdit, emailEdit, phoneEdit, detailsEdit;
@@ -42,14 +42,20 @@ public class Guest_Reservation_Page extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_guest_reservation_page);
 
+        userService = new UserService(this);
+
         initHeaderAndSidebar();
         initFormFields();
-        loadUserData(); // Auto-fill personal info
         initFooter();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        loadUserData(); // Refresh profile info and sidebar greeting
+    }
+
     private void initFormFields() {
-        // Map XML IDs
         dateEdit = findViewById(R.id.date);
         timeEdit = findViewById(R.id.time);
         guestsEdit = findViewById(R.id.num_guests);
@@ -59,15 +65,16 @@ public class Guest_Reservation_Page extends AppCompatActivity {
         phoneEdit = findViewById(R.id.phone_num);
         detailsEdit = findViewById(R.id.add_details);
 
-        // Date Picker
-        dateEdit.setFocusable(false);
-        dateEdit.setOnClickListener(v -> showDatePicker());
+        if (dateEdit != null) {
+            dateEdit.setFocusable(false);
+            dateEdit.setOnClickListener(v -> showDatePicker());
+        }
 
-        // Time Picker
-        timeEdit.setFocusable(false);
-        timeEdit.setOnClickListener(v -> showTimePicker());
+        if (timeEdit != null) {
+            timeEdit.setFocusable(false);
+            timeEdit.setOnClickListener(v -> showTimePicker());
+        }
 
-        // View Summary Button logic
         MaterialButton viewSummary = findViewById(R.id.view_summary_button);
         if (viewSummary != null) {
             viewSummary.setOnClickListener(v -> proceedToSummary());
@@ -76,45 +83,96 @@ public class Guest_Reservation_Page extends AppCompatActivity {
 
     private void loadUserData() {
         SharedPreferences prefs = getSharedPreferences("UserPrefs", MODE_PRIVATE);
-        // Get username saved during Login
-        String username = prefs.getString("user_name", "");
-        String studentId = "bsse2509244"; // Your specific student ID
+        String userId = prefs.getString("logged_in_user_id", "");
 
-        if (username.isEmpty()) return;
+        if (userId.isEmpty()) return;
 
-        RequestQueue queue = Volley.newRequestQueue(this);
+        userService.getUserProfile(studentId, userId, new UserService.UserProfileListener() {
+            @Override
+            public void onSuccess(User user) {
+                // 1. Update the sidebar greeting
+                updateSidebarGreeting(user.getFirstname());
 
-        // Updated URL format to target a single user: .../student_id/username
-        String url = "http://10.240.72.69/comp2000/coursework/read_user/" + studentId + "/" + username;
+                // 2. AUTO-FILL THE FORM FIELDS (Fixed this part!)
+                if (firstNameEdit != null) firstNameEdit.setText(user.getFirstname());
+                if (lastNameEdit != null) lastNameEdit.setText(user.getLastname());
+                if (emailEdit != null) emailEdit.setText(user.getEmail());
+                if (phoneEdit != null) phoneEdit.setText(user.getContact());
+            }
 
-        JsonObjectRequest request = new JsonObjectRequest(
-                Request.Method.GET, url, null,
-                response -> {
-                    try {
-                        JSONObject user = response;
-                        if (response.has("user")) {
-                            user = response.getJSONObject("user");
-                        }
+            @Override
+            public void onError(String message) {
+                // Fail silently or show a small toast
+            }
+        });
+    }
 
-                        String email = user.optString("email", "");
-                        String phone = user.optString("contact", "");
-                        String firstName = user.optString("firstname", username);
-                        String lastName = user.optString("lastname", "");
+    private void updateSidebarGreeting(String firstName) {
+        // 1. Find the sidebar container (the <include> tag ID from your main XML)
+        View sideNavView = findViewById(R.id.reservation_side_nav);
 
-                        runOnUiThread(() -> {
-                            firstNameEdit.setText(firstName);
-                            lastNameEdit.setText(lastName);
-                            emailEdit.setText(email);
-                            phoneEdit.setText(phone);
-                        });
+        if (sideNavView != null) {
+            // 2. Find the TextView inside your RelativeLayout sidebar
+            TextView greeting = sideNavView.findViewById(R.id.guest_greeting_name);
 
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                },
-                error -> Toast.makeText(this, "Error fetching profile", Toast.LENGTH_SHORT).show()
-        );
-        queue.add(request);
+            if (greeting != null) {
+                // 3. Set the text
+                greeting.setText("Hello, " + firstName + "!");
+            }
+        }
+    }
+
+    private void initHeaderAndSidebar() {
+        drawerLayout = findViewById(R.id.drawerLayout);
+        menuButton = findViewById(R.id.imageView);
+        profileHeader = findViewById(R.id.profile_nav);
+
+        if (menuButton != null) {
+            menuButton.setOnClickListener(v -> drawerLayout.openDrawer(GravityCompat.START));
+        }
+
+        if (profileHeader != null) {
+            profileHeader.setOnClickListener(v -> startActivity(new Intent(this, Guest_Profile_Settings.class)));
+        }
+
+        // Setup Sidebar Buttons via Include
+        View sideNavView = findViewById(R.id.reservation_side_nav);
+        if (sideNavView == null) sideNavView = findViewById(R.id.guest_profile_settings_nav);
+
+        if (sideNavView != null) {
+            View menuNav = sideNavView.findViewById(R.id.menuButton);
+            View reservationNav = sideNavView.findViewById(R.id.reservationButton);
+            View historyNav = sideNavView.findViewById(R.id.reservationHistoryButton);
+            View profileNav = sideNavView.findViewById(R.id.profileButton);
+            MaterialButton logoutNav = sideNavView.findViewById(R.id.logoutButton);
+            ImageView closeBtn = sideNavView.findViewById(R.id.closeSideNav);
+
+            if (menuNav != null) menuNav.setOnClickListener(v -> startActivity(new Intent(this, Guest_Menu_Page.class)));
+            if (reservationNav != null) reservationNav.setOnClickListener(v -> drawerLayout.closeDrawer(GravityCompat.START));
+            if (historyNav != null) historyNav.setOnClickListener(v -> startActivity(new Intent(this, Reservation_History.class)));
+            if (profileNav != null) profileNav.setOnClickListener(v -> startActivity(new Intent(this, Guest_Profile_Settings.class)));
+            if (closeBtn != null) closeBtn.setOnClickListener(v -> drawerLayout.closeDrawer(GravityCompat.START));
+            if (logoutNav != null) logoutNav.setOnClickListener(v -> showLogoutDialog());
+        }
+    }
+
+    private void showLogoutDialog() {
+        Dialog dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.activity_logout_confirmation_popup);
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            dialog.getWindow().setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT);
+        }
+        dialog.findViewById(R.id.confirmCancel).setOnClickListener(v -> {
+            getSharedPreferences("UserPrefs", MODE_PRIVATE).edit().clear().apply();
+            Intent intent = new Intent(this, MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+        });
+        dialog.findViewById(R.id.noCancel).setOnClickListener(v -> dialog.dismiss());
+        dialog.show();
     }
 
     private void showDatePicker() {
@@ -122,7 +180,6 @@ public class Guest_Reservation_Page extends AppCompatActivity {
         DatePickerDialog picker = new DatePickerDialog(this, (view, year, month, day) -> {
             dateEdit.setText(String.format(Locale.getDefault(), "%02d/%02d/%d", day, month + 1, year));
         }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH));
-
         picker.getDatePicker().setMinDate(System.currentTimeMillis());
         picker.show();
     }
@@ -135,7 +192,6 @@ public class Guest_Reservation_Page extends AppCompatActivity {
     }
 
     private void proceedToSummary() {
-        // 1. Get current values
         String fullName = firstNameEdit.getText().toString().trim() + " " + lastNameEdit.getText().toString().trim();
         String email = emailEdit.getText().toString().trim();
         String phone = phoneEdit.getText().toString().trim();
@@ -144,57 +200,24 @@ public class Guest_Reservation_Page extends AppCompatActivity {
         String guests = guestsEdit.getText().toString().trim();
         String details = detailsEdit.getText().toString().trim();
 
-        // 2. Validation
         if (fullName.isEmpty() || date.isEmpty() || guests.isEmpty()) {
             Toast.makeText(this, "Please fill in the required fields", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // 3. Pass to Summary
         Intent intent = new Intent(this, Guest_Reservation_Summary.class);
-        intent.putExtra("GUEST_NAME", fullName.trim());
+        intent.putExtra("GUEST_NAME", fullName);
         intent.putExtra("EMAIL", email);
         intent.putExtra("PHONE", phone);
         intent.putExtra("DATE", date);
         intent.putExtra("TIME", time);
         intent.putExtra("GUESTS", guests);
         intent.putExtra("DETAILS", details);
-
         startActivity(intent);
     }
 
-    private void initHeaderAndSidebar() {
-        drawerLayout = findViewById(R.id.drawerLayout);
-        menuButton = findViewById(R.id.imageView);
-        closeButton = findViewById(R.id.closeSideNav);
-        profileHeader = findViewById(R.id.profile_nav);
-
-        menuButton.setOnClickListener(v -> drawerLayout.openDrawer(GravityCompat.START));
-        closeButton.setOnClickListener(v -> drawerLayout.closeDrawer(GravityCompat.START));
-        profileHeader.setOnClickListener(v -> startActivity(new Intent(this, Guest_Profile_Settings.class)));
-
-        View menuNav = findViewById(R.id.menuButton);
-        View reservationNav = findViewById(R.id.reservationButton);
-        View reservationHistoryNav = findViewById(R.id.reservationHistoryButton);
-        View profileNav = findViewById(R.id.profileButton);
-        View notificationSettingsNav = findViewById(R.id.notificationSettingsButton);
-        MaterialButton logoutNav = findViewById(R.id.logoutButton);
-
-        menuNav.setOnClickListener(v -> startActivity(new Intent(Guest_Reservation_Page.this, Guest_Reservation_Page.class)));
-        reservationNav.setOnClickListener(v -> startActivity(new Intent(Guest_Reservation_Page.this, Guest_Reservation_Page.class)));
-        reservationHistoryNav.setOnClickListener(v -> startActivity(new Intent(Guest_Reservation_Page.this, Reservation_History.class)));
-        profileNav.setOnClickListener(v -> startActivity(new Intent(Guest_Reservation_Page.this, Guest_Profile_Settings.class)));
-        notificationSettingsNav.setOnClickListener(v -> startActivity(new Intent(Guest_Reservation_Page.this, Guest_Notification_Settings_Page.class)));
-    }
-
     private void initFooter() {
-        View footerMenu = findViewById(R.id.footer_main);
-        View footerHistory = findViewById(R.id.footer_history);
-
-        if (footerMenu != null)
-            footerMenu.setOnClickListener(v -> startActivity(new Intent(this, Guest_Menu_Page.class)));
-
-        if (footerHistory != null)
-            footerHistory.setOnClickListener(v -> startActivity(new Intent(this, Reservation_History.class)));
+        findViewById(R.id.footer_menu).setOnClickListener(v -> startActivity(new Intent(this, Guest_Menu_Page.class)));
+        findViewById(R.id.footer_history).setOnClickListener(v -> startActivity(new Intent(this, Reservation_History.class)));
     }
 }

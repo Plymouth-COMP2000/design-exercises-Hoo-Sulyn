@@ -110,6 +110,8 @@ public class Register_Page extends AppCompatActivity {
 
     }
 
+    // Inside Register_Page.java
+
     private void createUser(RequestQueue queue,
                             String fName,
                             String lName,
@@ -117,30 +119,27 @@ public class Register_Page extends AppCompatActivity {
                             String phone,
                             String password) {
 
-        String url = "http://10.240.72.69/comp2000/coursework/create_user/bsse2509244";
+        // 1. Create the User object
+        // Note: We use email as the username for uniqueness
+        User newUser = new User(email, password, fName, lName, email, phone, "guest");
 
-        JSONObject body = new JSONObject();
-        try {
-            body.put("username", fName + " " + lName);
-            body.put("email", email);
-            body.put("password", password);
-            body.put("phone", phone);
-            body.put("usertype", "user");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        // 2. Initialize the Service
+        UserService userService = new UserService(this);
 
-        JsonObjectRequest request = new JsonObjectRequest(
-                Request.Method.POST, url, body,
-                response -> {
-                    Toast.makeText(this, "Registration successful. Please login.", Toast.LENGTH_LONG).show();
-                    startActivity(new Intent(this, MainActivity.class));
-                    finish();
-                },
-                error -> Toast.makeText(this, "Registration failed", Toast.LENGTH_SHORT).show()
-        );
+        // 3. Call the service method (This is where the 'unused' code gets used!)
+        userService.createUser("bsse2509244", newUser, new UserService.UserProfileListener() {
+            @Override
+            public void onSuccess(User user) {
+                Toast.makeText(Register_Page.this, "Registration successful!", Toast.LENGTH_LONG).show();
+                startActivity(new Intent(Register_Page.this, MainActivity.class));
+                finish();
+            }
 
-        queue.add(request);
+            @Override
+            public void onError(String message) {
+                Toast.makeText(Register_Page.this, "Registration failed: " + message, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
 }

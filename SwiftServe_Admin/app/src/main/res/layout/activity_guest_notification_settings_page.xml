@@ -79,7 +79,9 @@
                             android:text="Enable Notifications"
                             android:padding="8dp"
                             android:textSize="18sp"/>
-                        <CheckBox android:checked="true"/>
+                        <CheckBox
+                            android:checked="true"
+                            android:id="@+id/check_enable_notifications"/>
                     </TableRow>
 
                     <!-- RECEIVE MENU UPDATES -->
@@ -88,7 +90,9 @@
                             android:text="Receive Menu Updates"
                             android:padding="8dp"
                             android:textSize="18sp"/>
-                        <CheckBox android:checked="false"/>
+                        <CheckBox
+                            android:checked="false"
+                            android:id="@+id/check_menu_updates"/>
                     </TableRow>
 
                     <!-- RECEIVE RESERVATION UPDATES-->
@@ -97,7 +101,9 @@
                             android:text="Receive Reservation Updates"
                             android:padding="8dp"
                             android:textSize="18sp"/>
-                        <CheckBox android:checked="false"/>
+                        <CheckBox
+                            android:checked="false"
+                            android:id="@+id/check_res_updates"/>
                     </TableRow>
                 </TableLayout>
 

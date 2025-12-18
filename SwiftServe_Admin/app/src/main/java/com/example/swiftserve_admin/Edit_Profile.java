@@ -107,6 +107,9 @@ public class Edit_Profile extends PollingBaseActivity {
                 password = user.getPassword();
                 userType = user.getUsertype();
 
+                editEmail.setFocusable(false);
+                editEmail.setClickable(false);
+
                 // UPDATE SIDEBAR ON LOAD TOO
                 updateSidebarName(user.getFirstname());
             }

@@ -23,7 +23,6 @@ import com.google.android.material.button.MaterialButton;
 
 public class Notification_Settings extends PollingBaseActivity {
     private DrawerLayout drawerLayout;
-    // NOTE: closeButton is often part of the included side nav, but kept here for consistency
     private ImageView menuButton;
     private FrameLayout profileHeader;
 
@@ -89,16 +88,19 @@ public class Notification_Settings extends PollingBaseActivity {
     }
 
     private void setChildCheckboxState(boolean enabled) {
-        // Disables or enables the specific alerts when the master switch changes
+        // Greys out the text and makes them unclickable
         reservationEdits.setEnabled(enabled);
         incomingReservations.setEnabled(enabled);
 
+        // Set transparency for visual "grey out" effect if disabled
+        float alpha = enabled ? 1.0f : 0.4f;
+        reservationEdits.setAlpha(alpha);
+        incomingReservations.setAlpha(alpha);
+
         if (!enabled) {
-            // If master is disabled, force the saving of 'false' for all sub-settings
+            // If master is disabled, we turn these off visually
             reservationEdits.setChecked(false);
             incomingReservations.setChecked(false);
-            savePreference(KEY_EDITS, false);
-            savePreference(KEY_INCOMING, false);
         }
     }
 

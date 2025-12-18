@@ -106,13 +106,13 @@
                     android:id="@+id/loginPassword"/>
             </com.google.android.material.textfield.TextInputLayout>
             <com.google.android.material.button.MaterialButton
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Forgot Password"
                 android:textColor="@color/black"
                 android:textSize="12sp"
                 android:id="@+id/forget_password"
-                android:textAlignment="viewEnd"
+                android:layout_gravity="end"
                 app:backgroundTint="@color/white"
                 />
             <com.google.android.material.button.MaterialButton

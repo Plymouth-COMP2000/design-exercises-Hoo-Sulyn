@@ -165,21 +165,25 @@ public class Reservation_Management extends PollingBaseActivity {
     }
 
     private void filterReservations(String query) {
-        allReservations = dbHelper.getAllReservations();   // fresh from DB
+        allReservations = dbHelper.getAllReservations();
         List<Reservation> filtered = new ArrayList<>();
 
-        if (query.isEmpty()) {
-            filtered = allReservations;
-        } else {
-            String q = query.toLowerCase();
-            for (Reservation r : allReservations) {
-                if (r.getGuestName().toLowerCase().contains(q) ||
-                        r.getDate().toLowerCase().contains(q)          ||
-                        r.getStatus().toLowerCase().contains(q))
-                    filtered.add(r);
+        String q = query.toLowerCase();
+        for (Reservation r : allReservations) {
+            if (query.isEmpty() ||
+                    r.getGuestName().toLowerCase().contains(q) ||
+                    r.getDate().toLowerCase().contains(q) ||
+                    r.getStatus().toLowerCase().contains(q)) {
+                filtered.add(r);
             }
         }
-        updateReservationCards(filtered);   // use overloaded version
+
+        // Apply the same sort to filtered results
+        java.util.Collections.sort(filtered, (r1, r2) -> {
+            return Integer.compare(getStatusWeight(r1.getStatus()), getStatusWeight(r2.getStatus()));
+        });
+
+        updateReservationCards(filtered);
     }
 
     private void updateReservationCards(List<Reservation> list) {
@@ -283,7 +287,26 @@ public class Reservation_Management extends PollingBaseActivity {
     }
 
     private void refreshReservationCards() {
-        updateReservationCards(dbHelper.getAllReservations());
+        List<Reservation> reservations = dbHelper.getAllReservations();
+
+        // Sort the list based on status priority
+        java.util.Collections.sort(reservations, (r1, r2) -> {
+            return Integer.compare(getStatusWeight(r1.getStatus()), getStatusWeight(r2.getStatus()));
+        });
+
+        updateReservationCards(reservations);
+    }
+
+    // Helper method to define the priority order
+    private int getStatusWeight(String status) {
+        if (status == null) return 4;
+        switch (status.toLowerCase()) {
+            case "pending":  return 0;
+            case "accepted": return 1;
+            case "declined": return 2;
+            case "attended": return 3;
+            default:         return 4;
+        }
     }
 
     private void setupFilterSpinner() {
@@ -312,7 +335,9 @@ public class Reservation_Management extends PollingBaseActivity {
 
     private void showByStatus(String status) {
         List<Reservation> all = dbHelper.getAllReservations();
-        if (status == null) {                 // "All"
+        if (status == null) { // "All" selected
+            java.util.Collections.sort(all, (r1, r2) ->
+                    Integer.compare(getStatusWeight(r1.getStatus()), getStatusWeight(r2.getStatus())));
             updateReservationCards(all);
             return;
         }
@@ -472,7 +497,11 @@ public class Reservation_Management extends PollingBaseActivity {
         View dialogView = getLayoutInflater().inflate(R.layout.activity_table_vacancy_popup, null);
         Dialog dialog = new Dialog(this);
         dialog.setContentView(dialogView);
-        dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+
+        // 1. Make the background transparent so your rounded corners show correctly
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        }
 
         TextView messageTv = dialogView.findViewById(R.id.vacancy_confirm_text);
         if (messageTv != null) {
@@ -483,7 +512,6 @@ public class Reservation_Management extends PollingBaseActivity {
         MaterialButton cancelBtn = dialogView.findViewById(R.id.cancel_button);
 
         confirmBtn.setOnClickListener(v -> {
-            // Change status to "Attended" so the table becomes available again
             dbHelper.updateStatus(res.getId(), "Attended");
             refreshReservationCards();
             dialog.dismiss();
@@ -491,7 +519,17 @@ public class Reservation_Management extends PollingBaseActivity {
         });
 
         cancelBtn.setOnClickListener(v -> dialog.dismiss());
+
+        // SHOW the dialog first
         dialog.show();
+
+        // force the width to match the screen
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setLayout(
+                    WindowManager.LayoutParams.MATCH_PARENT,
+                    WindowManager.LayoutParams.WRAP_CONTENT
+            );
+        }
     }
 
     // Helper method to update UI

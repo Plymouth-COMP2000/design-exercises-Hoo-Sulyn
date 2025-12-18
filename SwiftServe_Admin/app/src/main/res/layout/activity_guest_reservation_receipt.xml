@@ -53,7 +53,7 @@
                     </FrameLayout>
                 </LinearLayout>
                 <TextView
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:paddingVertical="10dp"
                     android:paddingHorizontal="15dp"
@@ -62,11 +62,11 @@
                     android:id="@+id/back_button"
                     android:text="&lt; Back"/>
                 <LinearLayout
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="20dp"
-                    android:id="@+id/edit_details"
-                    android:gravity="right">
+                    android:layout_gravity="right"
+                    android:id="@+id/edit_details">
                     <ImageView
                         android:layout_width="20dp"
                         android:layout_height="20dp"
@@ -120,7 +120,8 @@
                                 android:textColor="@color/black"
                                 android:textSize="16sp"
                                 android:textAlignment="textEnd"
-                                android:text="# 1234"/>
+                                android:id="@+id/reservation_id"
+                                android:text=""/>
                         </LinearLayout>
 
                         <!--                        RESERVATION STATUS-->
@@ -145,8 +146,33 @@
                                 android:textColor="#FF9000"
                                 android:textSize="16sp"
                                 android:textAlignment="textEnd"
+                                android:id="@+id/status"
                                 android:text="Pending approval"/>
                         </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/declined_reason_layout"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:visibility="gone"
+                            android:paddingTop="10dp">
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="Declined Reason:"
+                                android:textColor="#FF0000"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/declined_reason_text"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="Reason text goes here..."
+                                android:textColor="@color/black" />
+                        </LinearLayout>
+
                         <View
                             android:layout_width="match_parent"
                             android:layout_height="1dp"
@@ -175,7 +201,8 @@
                                 android:textColor="@color/black"
                                 android:textSize="16sp"
                                 android:textAlignment="textEnd"
-                                android:text="Alice Lastname"/>
+                                android:id="@+id/guest_name"
+                                android:text=""/>
                         </LinearLayout>
 
                         <!--                        EMAIL-->
@@ -200,7 +227,8 @@
                                 android:textColor="@color/black"
                                 android:textSize="16sp"
                                 android:textAlignment="textEnd"
-                                android:text="alice@email.com"/>
+                                android:id="@+id/guest_email"
+                                android:text=""/>
                         </LinearLayout>
 
                         <!--                        PHONE NUMBER-->
@@ -225,7 +253,8 @@
                                 android:textColor="@color/black"
                                 android:textSize="16sp"
                                 android:textAlignment="textEnd"
-                                android:text="0123456789"/>
+                                android:id="@+id/guest_phone_num"
+                                android:text=""/>
                         </LinearLayout>
                         <View
                             android:layout_width="match_parent"
@@ -255,7 +284,8 @@
                                 android:textColor="@color/black"
                                 android:textSize="16sp"
                                 android:textAlignment="textEnd"
-                                android:text="10 Nov 2025"/>
+                                android:id="@+id/reserve_date"
+                                android:text=""/>
                         </LinearLayout>
 
                         <!--                        RESERVE TIME-->
@@ -280,7 +310,8 @@
                                 android:textColor="@color/black"
                                 android:textSize="16sp"
                                 android:textAlignment="textEnd"
-                                android:text="6.00 p.m."/>
+                                android:id="@+id/reserve_time"
+                                android:text=""/>
                         </LinearLayout>
 
                         <!--                        TABLE NUMBER-->
@@ -305,6 +336,7 @@
                                 android:textColor="@color/black"
                                 android:textSize="16sp"
                                 android:textAlignment="textEnd"
+                                android:id="@+id/table_num"
                                 android:text="-"/>
                         </LinearLayout>
                         <View
@@ -335,7 +367,8 @@
                                 android:textColor="@color/black"
                                 android:textSize="16sp"
                                 android:textAlignment="textEnd"
-                                android:text="8"/>
+                                android:id="@+id/total_guests"
+                                android:text="0"/>
                         </LinearLayout>
                         <View
                             android:layout_width="match_parent"
@@ -365,7 +398,8 @@
                                 android:textSize="14sp"
                                 android:layout_marginTop="10dp"
                                 android:layout_marginLeft="20dp"
-                                android:text="This is an example of additional comment left by guests"/>
+                                android:id="@+id/add_comment"
+                                android:text=""/>
                         </LinearLayout>
                         <View
                             android:layout_width="match_parent"

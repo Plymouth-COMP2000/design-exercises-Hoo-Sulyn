@@ -2,6 +2,7 @@ package com.example.swiftserve_admin;
 
 import android.app.Dialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
@@ -21,7 +22,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import com.google.android.material.textfield.TextInputEditText;
 
-public class Guest_Menu_Page extends AppCompatActivity {
+public class Guest_Menu_Page extends GuestPollingBaseActivity {
     private DrawerLayout drawerLayout;
     private ImageView menuButton, closeButton;
     private FrameLayout profileHeader;
@@ -31,17 +32,19 @@ public class Guest_Menu_Page extends AppCompatActivity {
     private List<MenuItem> menuItems = new ArrayList<>();
     private TextInputEditText searchBar;
     private List<MenuItem> fullListForSearching = new ArrayList<>();
+    private UserService userService;
+    private String studentId = "bsse2509244";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_guest_menu_page);
 
-        dbHelper = new MenuDatabaseHelper(this);
+        userService = new UserService(this);
 
+        dbHelper = new MenuDatabaseHelper(this);
         menuRecycler = findViewById(R.id.menu_recycler);
         menuRecycler.setLayoutManager(new GridLayoutManager(this, 2));
-
 
         adapter = new MenuAdapter(menuItems, item -> showItemDetails(item));
         menuRecycler.setAdapter(adapter);
@@ -49,10 +52,48 @@ public class Guest_Menu_Page extends AppCompatActivity {
         searchBar = findViewById(R.id.search_bar);
 
         setupSearch();
-
         loadMenuItems();
-
         setupUI();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        loadUserData();
+    }
+
+    private void loadUserData() {
+        SharedPreferences prefs = getSharedPreferences("UserPrefs", MODE_PRIVATE);
+        String userId = prefs.getString("logged_in_user_id", "");
+
+        if (userId.isEmpty()) return;
+
+        userService.getUserProfile(studentId, userId, new UserService.UserProfileListener() {
+            @Override
+            public void onSuccess(User user) {
+                updateSidebarName(user.getFirstname());
+            }
+
+            @Override
+            public void onError(String message) {
+                // Fail silently or log it
+            }
+        });
+    }
+
+    // ADD THE SIDEBAR UPDATE LOGIC
+    private void updateSidebarName(String firstName) {
+        // Find the include layout container (usually the ID of the 'include' tag)
+        // In your previous code, it was R.id.guest_profile_settings_nav or R.id.side_nav_view
+        // Make sure this ID matches your activity_guest_menu_page.xml <include> tag ID
+        View sideNavView = findViewById(R.id.menu_side_nav);
+
+        if (sideNavView != null) {
+            TextView sidebarGreeting = sideNavView.findViewById(R.id.guest_greeting_name);
+            if (sidebarGreeting != null) {
+                sidebarGreeting.setText("Hello, " + firstName + "!");
+            }
+        }
     }
 
     private void setupSearch() {
@@ -151,8 +192,6 @@ public class Guest_Menu_Page extends AppCompatActivity {
         bottomSheetDialog.show();
     }
 
-
-
     private void setupUI() {
         // --- HEADER ---
         drawerLayout = findViewById(R.id.drawerLayout);
@@ -165,20 +204,24 @@ public class Guest_Menu_Page extends AppCompatActivity {
         profileHeader.setOnClickListener(v -> startActivity(new Intent(this, Guest_Profile_Settings.class)));
 
         // --- SIDEBAR ---
-        View menuNav = findViewById(R.id.menuButton);
-        View reservationNav = findViewById(R.id.reservationButton);
-        View reservationHistoryNav = findViewById(R.id.reservationHistoryButton);
-        View profileNav = findViewById(R.id.profileButton);
-        View notificationSettingsNav = findViewById(R.id.notificationSettingsButton);
-        MaterialButton logoutNav = findViewById(R.id.logoutButton);
+        View sideNavView = findViewById(R.id.menu_side_nav);
+        if (sideNavView != null) {
+            View menuNav = sideNavView.findViewById(R.id.menuButton);
+            View reservationNav = sideNavView.findViewById(R.id.reservationButton);
+            View historyNav = sideNavView.findViewById(R.id.reservationHistoryButton);
+            View profileNav = sideNavView.findViewById(R.id.profileButton);
+            View notificationNav = sideNavView.findViewById(R.id.notificationSettingsButton);
+            MaterialButton logoutNav = sideNavView.findViewById(R.id.logoutButton);
+            ImageView sideClose = sideNavView.findViewById(R.id.closeSideNav);
 
-        menuNav.setOnClickListener(v -> startActivity(new Intent(Guest_Menu_Page.this, Guest_Menu_Page.class)));
-        reservationNav.setOnClickListener(v -> startActivity(new Intent(Guest_Menu_Page.this, Guest_Reservation_Page.class)));
-        reservationHistoryNav.setOnClickListener(v -> startActivity(new Intent(Guest_Menu_Page.this, Reservation_History.class)));
-        profileNav.setOnClickListener(v -> startActivity(new Intent(Guest_Menu_Page.this, Guest_Profile_Settings.class)));
-        notificationSettingsNav.setOnClickListener(v -> startActivity(new Intent(Guest_Menu_Page.this, Guest_Notification_Settings_Page.class)));
-
-        logoutNav.setOnClickListener(v -> showLogoutDialog());
+            if (menuNav != null) menuNav.setOnClickListener(v -> drawerLayout.closeDrawer(GravityCompat.START));
+            if (reservationNav != null) reservationNav.setOnClickListener(v -> startActivity(new Intent(this, Guest_Reservation_Page.class)));
+            if (historyNav != null) historyNav.setOnClickListener(v -> startActivity(new Intent(this, Reservation_History.class)));
+            if (profileNav != null) profileNav.setOnClickListener(v -> startActivity(new Intent(this, Guest_Profile_Settings.class)));
+            if (notificationNav != null) notificationNav.setOnClickListener(v -> startActivity(new Intent(this, Guest_Notification_Settings_Page.class)));
+            if (sideClose != null) sideClose.setOnClickListener(v -> drawerLayout.closeDrawer(GravityCompat.START));
+            if (logoutNav != null) logoutNav.setOnClickListener(v -> showLogoutDialog());
+        }
 
         // --- FOOTER ---
         findViewById(R.id.footer_reservation).setOnClickListener(v -> startActivity(new Intent(this, Guest_Reservation_Page.class)));

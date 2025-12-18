@@ -99,7 +99,8 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:inputType="date"
-                                android:hint="10 Nov 2025" />
+                                android:id="@+id/date"
+                                android:hint="Date" />
                         </com.google.android.material.textfield.TextInputLayout>
 
                         <!--                        TIME-->
@@ -119,8 +120,9 @@
                             <com.google.android.material.textfield.TextInputEditText
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:inputType="time"
-                                android:hint="6:00 p.m." />
+                                android:id="@+id/time"
+                                android:hint="Time"
+                                android:inputType="time" />
                         </com.google.android.material.textfield.TextInputLayout>
 
 
@@ -140,7 +142,8 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:inputType="number"
-                            android:hint="8"
+                            android:id="@+id/total_guests"
+                            android:hint="No. of Guests"
                             />
                     </com.google.android.material.textfield.TextInputLayout>
                 </LinearLayout>
@@ -170,7 +173,8 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:inputType="textPersonName"
-                            android:hint="Alice"/>
+                            android:id="@+id/firstname"
+                            android:hint="First name"/>
                     </com.google.android.material.textfield.TextInputLayout>
                     <com.google.android.material.textfield.TextInputLayout
                         android:layout_width="match_parent"
@@ -186,7 +190,8 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:inputType="textPersonName"
-                            android:hint="Lastname"/>
+                            android:id="@+id/lastname"
+                            android:hint="Last name"/>
                     </com.google.android.material.textfield.TextInputLayout>
                     <com.google.android.material.textfield.TextInputLayout
                         android:layout_width="match_parent"
@@ -207,7 +212,8 @@
                             app:boxCornerRadiusTopEnd="8dp"
                             app:boxCornerRadiusBottomStart="8dp"
                             app:boxCornerRadiusBottomEnd="8dp"
-                            android:hint="alice@email.com"/>
+                            android:id="@+id/email"
+                            android:hint="Email Address"/>
                     </com.google.android.material.textfield.TextInputLayout>
                     <com.google.android.material.textfield.TextInputLayout
                         android:layout_width="match_parent"
@@ -218,7 +224,8 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:inputType="phone"
-                            android:hint="0123456789"/>
+                            android:id="@+id/phone_num"
+                            android:hint="Phone no."/>
                     </com.google.android.material.textfield.TextInputLayout>
                 </LinearLayout>
                 <LinearLayout
@@ -264,6 +271,7 @@
                             android:singleLine="false"
                             android:gravity="top|start"
                             android:minLines="5"
+                            android:id="@+id/add_details"
                             android:hint="Any comments or special requests? Be as specific as possible" />
                     </com.google.android.material.textfield.TextInputLayout>
                 </LinearLayout>

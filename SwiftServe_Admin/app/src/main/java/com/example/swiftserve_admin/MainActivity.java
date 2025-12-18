@@ -3,6 +3,7 @@ package com.example.swiftserve_admin;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import com.android.volley.Request;
@@ -18,6 +19,7 @@ public class MainActivity extends AppCompatActivity {
 
     private MaterialButton loginButton, registerOption;
     private TextInputEditText loginEmail, loginPassword;
+    private TextView forgetPassword;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,6 +30,7 @@ public class MainActivity extends AppCompatActivity {
         loginPassword = findViewById(R.id.loginPassword);
         loginButton = findViewById(R.id.loginButton);
         registerOption = findViewById(R.id.registerOption);
+        forgetPassword = findViewById(R.id.forget_password);
 
         loginButton.setOnClickListener(v -> {
             String email = loginEmail.getText().toString().trim();
@@ -111,5 +114,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         registerOption.setOnClickListener(v -> startActivity(new Intent(this, Register_Page.class)));
+        forgetPassword.setOnClickListener(v -> startActivity(new Intent(this, Forget_Password.class)));
     }
 }

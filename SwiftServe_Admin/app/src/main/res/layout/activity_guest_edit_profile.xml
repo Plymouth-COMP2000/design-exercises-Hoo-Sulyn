@@ -295,7 +295,7 @@
     <!-- NAVIGATION DRAWER -->
     <include
         android:id="@+id/edit_profile_nav"
-        layout="@layout/activity_profile_side_nav"
+        layout="@layout/guest_profile_side_nav"
         android:layout_width="250dp"
         android:layout_height="match_parent"
         android:layout_gravity="start" />
